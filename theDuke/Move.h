@@ -2,7 +2,7 @@
 #include <vector>
 
 enum operation { add_it, move_it, command_it };
-enum types_of_moves { nothing, walk, slide, jump_and_slide, shoot, jump, command, walk_or_command };
+enum types_of_moves { nothing, walk, slide, jump_and_slide, strike, jump, command, walk_or_command };
 enum troop_name { Assassin, Bowman, Dragoon, Duke, Footman, General, Champion, Knight, Longbowman, Marshall, Nothing, Pikeman, Priest, Ranger, Seer, Wizard };
 
 class coordinates {

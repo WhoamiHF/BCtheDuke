@@ -143,6 +143,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="Stategy_manager.cpp" />
     <ClCompile Include="theDuke.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +152,7 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="Stategy_manager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

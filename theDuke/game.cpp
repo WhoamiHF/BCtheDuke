@@ -178,8 +178,8 @@ bool game_t::check_walk(coordinates from, coordinates to) {
 	return true;
 }
 
-//checks if we move friendly troop, and if move can be made - if path is clear (or we jump/shoot) and if the destination is not occupied by friendly troop
-types_of_moves game_t::get_move(coordinates from, coordinates to, bool shoot_anywhere) {
+//checks if we move friendly troop, and if move can be made - if path is clear (or we jump/strike) and if the destination is not occupied by friendly troop
+types_of_moves game_t::get_move(coordinates from, coordinates to, bool strike_anywhere) {
 	//check if both tiles are on the board
 	if (!coordinates_on_board(from.x, from.y) || !coordinates_on_board(to.x, to.y)) {
 		return nothing;
@@ -234,11 +234,11 @@ types_of_moves game_t::get_move(coordinates from, coordinates to, bool shoot_any
 		case jump_and_slide:
 			return jump_and_slide;
 			break;
-		case shoot:
-			if (!shoot_anywhere && board[to.x][to.y] == NULL) {
+		case strike:
+			if (!strike_anywhere && board[to.x][to.y] == NULL) {
 				return nothing;
 			}
-			return shoot;
+			return strike;
 			break;
 		case jump:
 			return jump;
@@ -396,17 +396,14 @@ types_of_moves game_t::move_troop(coordinates from, coordinates to) {
 	auto move = get_move(from, to, false);
 	switch (move) {
 	case nothing:
-		//std::cout << "Move from [" << from.x << "," << from.y << "] to [" << to.x << "," << to.y << "] was not succesful" << std::endl;
 		return nothing;
 		break;
-	case shoot:
-		//std::cout << "Succesful shoot from [" << from.x << "," << from.y << "] to [" << to.x << "," << to.y << "]" << std::endl;
+	case strike:
 		remove_figure(to.x, to.y);
 		board[from.x][from.y]->starting_position = !board[from.x][from.y]->starting_position; //troop stays on same position, but changes moves
-		return shoot;
+		return strike;
 		break;
 	default:
-		//std::cout << "Succesful move from [" << from.x << "," << from.y << "] to [" << to.x << "," << to.y << "]" << std::endl;
 		if (board[to.x][to.y] != NULL) {
 			remove_figure(to.x, to.y);
 		}
@@ -418,6 +415,13 @@ types_of_moves game_t::move_troop(coordinates from, coordinates to) {
 			second_player.change_coordinates(from.x, from.y, to.x, to.y);
 		}
 		board[to.x][to.y]->starting_position = !board[to.x][to.y]->starting_position; //troop has moved
+		/*if duke can be taken
+		if (first_player_plays) {
+
+		}
+		for(auto&&
+		undo changes
+		return nothing*/
 		return move;
 		break;
 	}
@@ -639,7 +643,16 @@ evaluation_and_move_t game_t::minimax(int depth, bool maximize, double alpha, do
 		return evaluation_and_move_t(0, move_t(std::vector<coordinates>(), add_it));
 	}
 
-	if (depth == 0 || game_state != running) {
+	if (game_state != running) {
+		if (maximize) {
+			return evaluation_and_move_t(-1000 * DEPTH, move_t(std::vector<coordinates>(), add_it));
+		}
+		else {
+			return evaluation_and_move_t(1000 * DEPTH, move_t(std::vector<coordinates>(), add_it));
+		}
+	}
+
+	if (depth == 0) {
 		return evaluation_and_move_t(evaluate_state(maximize,troops_value), move_t(std::vector<coordinates>(), add_it));
 	}
 
@@ -689,7 +702,7 @@ evaluation_and_move_t game_t::minimax(int depth, bool maximize, double alpha, do
 
 /* Function called by evaluate_move function. Returns game object to state before move was made. For undoing a addition is used undo_addition()
 * @param move - kind of move (command,move) ,coordinates
-* @param type - type of move (shoot,slide)
+* @param type - type of move (strike,slide)
 * @param figure_on_board - troop which was on board
 */
 void game_t::undo(move_t move, types_of_moves type, std::unique_ptr<figure> figure_on_board) {
@@ -702,7 +715,7 @@ void game_t::undo(move_t move, types_of_moves type, std::unique_ptr<figure> figu
 	if (move.op == move_it) {
 		from = move.coords[0];
 		to = move.coords[1];
-		if (type != shoot) {
+		if (type != strike) {
 			board[from.x][from.y] = board[to.x][to.y]->clone();
 		}
 		board[from.x][from.y]->starting_position = !board[from.x][from.y]->starting_position;
@@ -1062,9 +1075,10 @@ void game_t::play() {
 void game_t::place_starting_troops() {
 	srand(time(NULL));
 	add_duke();
+	add_footman();
+	add_footman();
+	first_player_plays = !first_player_plays;
 	add_duke();
-	add_footman();
-	add_footman();
 	add_footman();
 	add_footman();
 }
@@ -1080,7 +1094,6 @@ void game_t::add_duke() {
 		user_add_duke();
 	}
 	print_board();
-	first_player_plays = !first_player_plays;
 }
 
 /* checks whatever is playing computer or user and calls corresponding function for adding the footman
@@ -1094,7 +1107,6 @@ void game_t::add_footman() {
 		user_add_footman();
 	}
 	print_board();
-	first_player_plays = !first_player_plays;
 }
 
 /* randomly chooses position for the duke and places it there
@@ -1373,7 +1385,11 @@ std::string game_t::create_hash() {
 	return hash;
 }
 
-
+/* precomputes possible moves for each troop and for each position without regard on other troops (for example if it was the only piece on the board).
+*  result contains list of square which should be considered for checking move, other squares are no valid since troop never can go to the square.
+* @param[out] sheet_odd - sheet for odd moves of troops
+* @param[out] sheet_even - sheet for even moves of troops
+*/
 void precomputations_t::prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even) {
 	game_t tmp = game_t(&sheet_odd, &sheet_even, NULL, NULL);
 	size_t total = 0;

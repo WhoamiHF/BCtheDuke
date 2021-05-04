@@ -80,7 +80,7 @@ public:
 				case slide:
 					std::cout << "sl ";
 					break;
-				case shoot:
+				case strike:
 					std::cout << "sh ";
 					break;
 				default:
@@ -107,7 +107,7 @@ public:
 				case slide:
 					std::cout << "sl ";
 					break;
-				case shoot:
+				case strike:
 					std::cout << "sh ";
 					break;
 				default:

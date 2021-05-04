@@ -11,14 +11,9 @@
 class logger {
 public:
 	logger() {
-		std::time_t t = std::time(0);
-		int xx = t;
-		std::string s = std::to_string(xx);
-		file = std::ofstream("Logs/" +s + ".txt");
-		std::cout << xx;
 		even_move = false;
 	}
-
+	void create_file();
 	void log(move_t move);
 	void log_addition(coordinates coords, troop_name name);
 private:

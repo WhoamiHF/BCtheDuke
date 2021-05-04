@@ -88,6 +88,30 @@ public:
 		this->sheet_odd = t.sheet_odd;
 		//this->log = t.log; @todo necessary constructor?
 	}
+
+	game_t& operator=(const game_t& t) {
+		for (size_t i = 0; i < 6; i++)
+		{
+			for (size_t j = 0; j < 6; j++)
+			{
+				if (t.board[i][j] == NULL) {
+					this->board[i][j] = NULL;
+				}
+				else {
+					this->board[i][j] = t.board[i][j]->clone();
+				}
+			}
+		}
+
+		this->first_player = t.first_player;
+		this->second_player = t.second_player;
+		this->first_player_plays = t.first_player_plays;
+		this->sheet_even = t.sheet_even;
+		this->sheet_odd = t.sheet_odd;
+		this->log = logger();
+		return *this;
+	}
+
 	bool add_new_figure(coordinates to, troop_name name_of_troop,bool anywhere);
 
 	bool first_player_plays; //@todo: private
@@ -102,7 +126,10 @@ public:
 	void collect_all_possible_moves(std::vector<move_t>& moves);
 	int evaluate_troops();
 	std::unique_ptr<figure> board[6][6];
-	void prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even);
+	state_of_game game_state;
+	//void prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even);
+
+	void computer_play(considered_states_t& states, size_t& turns_without_change);
 private:
 	void undo_add(coordinates to, troop_name name);
 	void undo(move_t type, types_of_moves move, std::unique_ptr<figure> figure_on_board);
@@ -121,7 +148,6 @@ private:
 	bool check_duke_placement(int x, int y, bool first);
 
 
-	void computer_play(considered_states_t& states,size_t& turns_without_change);
 	void collect_addition(int x, int y, std::vector<coordinates>& squares);
 	void collect_commands(int x, int y, std::vector<move_t>& possible_moves);
 
@@ -134,7 +160,7 @@ private:
 
 	void play_specific_move(move_t move, size_t& turns_without_change);
 	bool command_troop(coordinates base, coordinates from, coordinates to);
-	types_of_moves get_move(coordinates from, coordinates to,bool shoot_anywhere);
+	types_of_moves get_move(coordinates from, coordinates to,bool strike_anywhere);
 	bool remove_figure(int x, int y);
 
 	directions get_directions(coordinates difference);
@@ -152,7 +178,6 @@ private:
 	
 	player_t first_player;
 	player_t second_player;
-	state_of_game game_state;
 	all_troops_sheet_t* sheet_odd;
 	all_troops_sheet_t* sheet_even;
 	logger log;

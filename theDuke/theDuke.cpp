@@ -5,6 +5,25 @@
 #include "figures.h"
 #include "game.h"
 #include "Logger.h"
+#include "Stategy_manager.h"
+
+void load_parameters(std::map<troop_name, int>& troop_values) {
+	troop_values.emplace(std::pair<troop_name, int>(Duke, 100));
+	troop_values.emplace(std::pair<troop_name, int>(Seer, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Priest, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Longbowman, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Footman, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Pikeman, 2));
+	troop_values.emplace(std::pair<troop_name, int>(General, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Knight, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Bowman, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Wizard, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Champion, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Ranger, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Dragoon, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Marshall, 2));
+	troop_values.emplace(std::pair<troop_name, int>(Assassin, 2));
+}
 
 void print_all_possible_moves(std::vector<move_t> possible_moves) {
 	for (auto&& item : possible_moves) {
@@ -42,12 +61,12 @@ void test_1() {
 	print_all_possible_moves(possible_moves);
 }
 
-/* test same thing as test_1 and shoot with and without target*/
+/* test same thing as test_1 and strike with and without target*/
 void test_2() {
 	precomputations_t moves = precomputations_t();
 	std::map<troop_name, int> x = std::map<troop_name, int>();
 	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
-	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	parameters_t p2 = parameters_t(x, true, 0.8, 0.3, 3, 4, 3);
 	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2);
 	gameLogic.add_new_figure(coordinates(3, 0), Duke,false);
 	gameLogic.first_player_plays = false;
@@ -139,23 +158,27 @@ void test_5() {
 	print_all_possible_moves(possible_moves);
 }
 
-void load_parameters(std::map<troop_name, int>& troop_values) {
-	troop_values.emplace(std::pair<troop_name, int>(Duke, 100));
-	troop_values.emplace(std::pair<troop_name, int>(Seer, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Priest, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Longbowman, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Footman, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Pikeman, 2));
-	troop_values.emplace(std::pair<troop_name, int>(General, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Knight, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Bowman, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Wizard, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Champion, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Ranger, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Dragoon, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Marshall, 2));
-	troop_values.emplace(std::pair<troop_name, int>(Assassin, 2));
+void test_6() {
+	precomputations_t moves = precomputations_t();
+	std::map<troop_name, int> x = std::map<troop_name, int>();
+	load_parameters(x);
+	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, &p1, &p2);
+	gameLogic.add_new_figure(coordinates(1, 0), Duke, false);
+	gameLogic.first_player_plays = false;
+	gameLogic.add_new_figure(coordinates(0, 0), Duke, false);
+	gameLogic.add_new_figure(coordinates(3, 0), Pikeman, true);
+	considered_states_t t = considered_states_t();
+	size_t turns = TURNS_WITHOUT_CHANGE_DRAW-1;
+	gameLogic.first_player_plays = true;
+	gameLogic.computer_play(t, turns);
+	gameLogic.print_board();
+	gameLogic.print_state();
+	
 }
+
+
 
 
 int main()
@@ -166,13 +189,22 @@ int main()
 	//test_3();
 	//test_4();
 	//test_5();
-	std::map<troop_name, int> x = std::map<troop_name, int>();
-	load_parameters(x);
-	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4,2);
-	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4,2);
-	precomputations_t moves = precomputations_t();
-	game_t gameLogic = game_t(&moves.sheet_odd,&moves.sheet_even,&p1,&p2);
+	//test_6();
+	/*
+	* precomputations_t moves = precomputations_t();
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, &p1, &p2);
 	gameLogic.play();
+	*/
+	/*std::map<troop_name, int> x = std::map<troop_name, int>();
+	load_parameters(x);
+	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	*/
+	strategy_manager_t mng = strategy_manager_t();
+	mng.mutate(chromozome_t(SIZE_OF_CHROMOZOME,true));
+	std::cout << std::endl;
+	mng.crossover(parents_t(0, 1));
+	//mng.compare_stategies(&p1, &p2);
 
 
 

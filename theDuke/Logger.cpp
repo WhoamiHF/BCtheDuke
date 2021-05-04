@@ -1,6 +1,17 @@
 #include "Logger.h"
 
+void logger::create_file() {
+	std::time_t t = std::time(0);
+	int xx = t;
+	std::string s = std::to_string(xx);
+	file = std::ofstream("Logs/" + s + ".txt");
+	std::cout << xx;
+}
+
 void logger::log(move_t move) {
+	if (!file.is_open()) {
+		create_file();
+	}
 	switch (move.op) {
 	case add_it:
 		//special function for loggin adition
@@ -21,6 +32,9 @@ void logger::log(move_t move) {
 }
 
 void logger::log_addition(coordinates coords, troop_name type) {
+	if (!file.is_open()) {
+		create_file();
+	}
 	std::string name = "";
 	switch (type) {
 	case Duke:

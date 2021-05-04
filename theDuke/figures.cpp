@@ -15,8 +15,8 @@ void pikeman::set_moves() {
 	starting_moves[3][1] = walk;
 	starting_moves[4][0] = walk;
 
-	other_moves[1][0] = shoot;
-	other_moves[3][0] = shoot;
+	other_moves[1][0] = strike;
+	other_moves[3][0] = strike;
 	other_moves[2][1] = walk;
 	other_moves[2][3] = walk;
 	other_moves[2][4] = walk;
@@ -86,9 +86,9 @@ void bowman::set_moves() {
 	starting_moves[4][2] = jump;
 	starting_moves[2][4] = jump;
 
-	other_moves[1][1] = shoot;
-	other_moves[3][1] = shoot;
-	other_moves[2][0] = shoot;
+	other_moves[1][1] = strike;
+	other_moves[3][1] = strike;
+	other_moves[2][0] = strike;
 
 	other_moves[1][3] = walk;
 	other_moves[2][1] = walk;
@@ -96,9 +96,9 @@ void bowman::set_moves() {
 }
 
 void dragoon::set_moves() {
-	starting_moves[0][0] = shoot;
-	starting_moves[2][0] = shoot;
-	starting_moves[4][0] = shoot;
+	starting_moves[0][0] = strike;
+	starting_moves[2][0] = strike;
+	starting_moves[4][0] = strike;
 
 	starting_moves[1][2] = walk;
 	starting_moves[3][2] = walk;
@@ -213,10 +213,10 @@ void champion::set_moves() {
 	other_moves[4][2] = jump;
 	other_moves[0][2] = jump;
 
-	other_moves[1][2] = shoot;
-	other_moves[2][1] = shoot;
-	other_moves[3][2] = shoot;
-	other_moves[2][3] = shoot;
+	other_moves[1][2] = strike;
+	other_moves[2][1] = strike;
+	other_moves[3][2] = strike;
+	other_moves[2][3] = strike;
 }
 
 void general::set_moves() {
@@ -255,8 +255,8 @@ void longbowman::set_moves() {
 	starting_moves[2][4] = walk;
 	starting_moves[3][3] = walk;
 
-	other_moves[2][0] = shoot;
-	other_moves[2][1] = shoot;
+	other_moves[2][0] = strike;
+	other_moves[2][1] = strike;
 
 	other_moves[1][4] = walk;
 	other_moves[3][4] = walk;
