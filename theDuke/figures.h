@@ -7,6 +7,7 @@
 #include "player.h"
 #include "Move.h"
 
+#define NUMBER_OF_FIGURES 15
 
 class directions {
 public:

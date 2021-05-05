@@ -201,9 +201,9 @@ int main()
 	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
 	*/
 	strategy_manager_t mng = strategy_manager_t();
-	mng.mutate(chromozome_t(SIZE_OF_CHROMOZOME,true));
-	std::cout << std::endl;
-	mng.crossover(parents_t(0, 1));
+	mng.load_chromozomes();
+	mng.evolve();
+	mng.save_chromozomes();
 	//mng.compare_stategies(&p1, &p2);
 
 
