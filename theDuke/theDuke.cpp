@@ -47,7 +47,7 @@ void test_1() {
 	std::map<troop_name, int> x = std::map<troop_name, int>();
 	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
 	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
-	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2);
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2,true,true);
 	gameLogic.add_new_figure(coordinates(1, 1), Duke,false);
 	gameLogic.add_new_figure(coordinates(1, 0), Marshall,false);
 	gameLogic.move_troop(coordinates(1, 0), coordinates(2, 0));
@@ -67,7 +67,7 @@ void test_2() {
 	std::map<troop_name, int> x = std::map<troop_name, int>();
 	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
 	parameters_t p2 = parameters_t(x, true, 0.8, 0.3, 3, 4, 3);
-	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2);
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2,true,true);
 	gameLogic.add_new_figure(coordinates(3, 0), Duke,false);
 	gameLogic.first_player_plays = false;
 	gameLogic.add_new_figure(coordinates(2, 3), Duke,false);
@@ -88,7 +88,7 @@ void test_3() {
 	std::map<troop_name, int> x = std::map<troop_name, int>();
 	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
 	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
-	game_t gameLogic = game_t(&moves.sheet_odd,&moves.sheet_even,&p1,&p2);
+	game_t gameLogic = game_t(&moves.sheet_odd,&moves.sheet_even,&p1,&p2,true,true);
 	gameLogic.first_player_plays = false;
 	gameLogic.add_new_figure(coordinates(1, 2), Duke,false);
 	gameLogic.add_new_figure(coordinates(1, 3), Footman,false);
@@ -115,7 +115,7 @@ void test_4() {
 	std::map<troop_name, int> x = std::map<troop_name, int>();
 	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
 	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
-	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2);
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2,true,true);
 	gameLogic.first_player_plays = true;
 	gameLogic.add_new_figure(coordinates(2, 0), Duke, false);
 	gameLogic.add_new_figure(coordinates(3, 0), Footman, true);
@@ -145,7 +145,7 @@ void test_5() {
 	std::map<troop_name, int> x = std::map<troop_name, int>();
 	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
 	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
-	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2);
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even,&p1,&p2,true,true);
 	gameLogic.first_player_plays = false;
 	gameLogic.add_new_figure(coordinates(0, 0), Duke, false);
 	gameLogic.add_new_figure(coordinates(1, 0), Pikeman, true);
@@ -164,7 +164,7 @@ void test_6() {
 	load_parameters(x);
 	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
 	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
-	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, &p1, &p2);
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, &p1, &p2,true,true);
 	gameLogic.add_new_figure(coordinates(1, 0), Duke, false);
 	gameLogic.first_player_plays = false;
 	gameLogic.add_new_figure(coordinates(0, 0), Duke, false);
@@ -201,7 +201,6 @@ int main()
 	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
 	*/
 	strategy_manager_t mng = strategy_manager_t();
-	mng.load_chromozomes();
 	mng.evolve();
 	mng.save_chromozomes();
 	//mng.compare_stategies(&p1, &p2);

@@ -18,6 +18,16 @@ public:
 		depth = _depth;
 		coeficient_active_passive = _coefficient_active_passive;
 	}
+	parameters_t(std::map<troop_name, int> _troop_values, bool _max_of_addition, double _coefficient_possible_moves,
+		double _coefficient_duke_moves, double _coefficient_active_passive) {
+		troop_values = _troop_values;
+		max_of_addition = _max_of_addition;
+		coefficient_possible_moves = _coefficient_possible_moves;
+		coefficient_duke_moves = _coefficient_duke_moves;
+		part_of_addition = 4;
+		depth = 4;
+		coeficient_active_passive = _coefficient_active_passive;
+	}
 	std::map<troop_name,int> troop_values;
 	bool max_of_addition;
 	double coefficient_possible_moves;

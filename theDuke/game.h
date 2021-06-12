@@ -14,6 +14,7 @@
 #define DEPTH 4
 #define PART 4
 #define TURNS_WITHOUT_CHANGE_DRAW 30
+#define INFINITY 1000
 
 class player_t;
 class precomputations_t;
@@ -49,7 +50,7 @@ typedef std::map<troop_name, single_troop_sheet_t> all_troops_sheet_t;
 class game_t {
 public:
 	friend precomputations_t;
-	game_t(all_troops_sheet_t* _sheet_odd,all_troops_sheet_t* _sheet_even,parameters_t* first_parameters, parameters_t* second_parameters) {
+	game_t(all_troops_sheet_t* _sheet_odd,all_troops_sheet_t* _sheet_even,parameters_t* first_parameters, parameters_t* second_parameters,bool first_player_pc,bool second_player_pc) {
 		first_player_plays = true;
 		for (size_t i = 0; i < 6; i++)
 		{
@@ -59,8 +60,8 @@ public:
 
 			}
 		}
-		first_player = player_t(true, true,first_parameters);
-		second_player = player_t(false, true,second_parameters);
+		first_player = player_t(true, first_player_pc,first_parameters);
+		second_player = player_t(false, second_player_pc,second_parameters);
 		game_state = running;
 		sheet_even = _sheet_even;
 		sheet_odd = _sheet_odd;
@@ -123,8 +124,8 @@ public:
 	types_of_moves move_troop(coordinates from, coordinates to);
 
 	void play();
-	void collect_all_possible_moves(std::vector<move_t>& moves);
-	int evaluate_troops();
+	size_t collect_all_possible_moves(std::vector<move_t>& moves);
+	double evaluate_troops(bool first_player_view);
 	std::unique_ptr<figure> board[6][6];
 	state_of_game game_state;
 	//void prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even);
@@ -133,7 +134,7 @@ public:
 private:
 	void undo_add(coordinates to, troop_name name);
 	void undo(move_t type, types_of_moves move, std::unique_ptr<figure> figure_on_board);
-	evaluation_and_move_t minimax(int depth, bool maximize, double alpha, double beta,int troops_value, size_t turns_without_change);
+	evaluation_and_move_t minimax(int depth, bool maximize, double alpha, double beta,double troops_value, size_t turns_without_change);
 	void place_starting_troops();
 	void user_add_footman();
 	void user_add_duke();
@@ -141,7 +142,7 @@ private:
 	void computer_add_duke();
 	void add_duke();
 	void add_footman();
-
+	double get_troop_value(bool maximize,troop_name name,bool addition);
 
 	bool user_play();
 	int get_safely_next_number(std::stringstream& stream);
@@ -151,8 +152,8 @@ private:
 	void collect_addition(int x, int y, std::vector<coordinates>& squares);
 	void collect_commands(int x, int y, std::vector<move_t>& possible_moves);
 
-	double evaluate_state(bool maximize,int troops_value);
-	double evaluate_move(move_t move, int depth, bool maximize, double alpha, double beta,int troops_value,size_t turns_without_change);
+	double evaluate_state(bool maximize,double troops_value);
+	double evaluate_move(move_t move, int depth, bool maximize, double alpha, double beta,double troops_value,size_t turns_without_change);
 
 	std::string create_hash();
 	void append_active_to_hash(bool first, std::string& hash);

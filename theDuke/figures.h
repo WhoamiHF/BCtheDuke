@@ -9,6 +9,7 @@
 
 #define NUMBER_OF_FIGURES 15
 
+
 class directions {
 public:
 	directions(int x_, int y_, int distance_) {
