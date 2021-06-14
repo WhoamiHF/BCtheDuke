@@ -61,15 +61,15 @@ class packs_t {
 public:
 	packs_t() {
 		active = std::vector<troop_t>();
-		backup = std::vector<troop_name>{ Duke, Footman,Footman,Footman,Pikeman,Pikeman,Pikeman,Marshall,General,Longbowman,Priest,Ranger,Knight,Assassin,Dragoon,Champion,Wizard,Seer,Bowman };
+		backup = std::multiset<troop_name>{ Duke, Footman,Footman,Footman,Pikeman,Pikeman,Pikeman,Marshall,General,Longbowman,Priest,Ranger,Knight,Assassin,Dragoon,Champion,Wizard,Seer,Bowman };
 	}
-	packs_t(std::vector<troop_t> active_,std::vector<troop_name> backup_) {
+	packs_t(std::vector<troop_t> active_,std::multiset<troop_name> backup_) {
 		active = active_;
 		backup = backup_;
 	}
 	bool deploy_troop(troop_name figure, int x, int y);
 	std::vector<troop_t> active;
-	std::vector<troop_name> backup;
+	std::multiset<troop_name> backup;
 	
 };
 

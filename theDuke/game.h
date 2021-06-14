@@ -14,7 +14,8 @@
 #define DEPTH 4
 #define PART 4
 #define TURNS_WITHOUT_CHANGE_DRAW 30
-#define INFINITY 1000
+#define INFINITY 10000
+#define EXTREME_EVALUATION INFINITY/10
 
 class player_t;
 class precomputations_t;
@@ -128,13 +129,13 @@ public:
 	double evaluate_troops(bool first_player_view);
 	std::unique_ptr<figure> board[6][6];
 	state_of_game game_state;
-	//void prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even);
+	std::string create_hash();
 
 	void computer_play(considered_states_t& states, size_t& turns_without_change);
 private:
 	void undo_add(coordinates to, troop_name name);
 	void undo(move_t type, types_of_moves move, std::unique_ptr<figure> figure_on_board);
-	evaluation_and_move_t minimax(int depth, bool maximize, double alpha, double beta,double troops_value, size_t turns_without_change);
+	evaluation_and_move_t minimax(int depth, bool maximize, double alpha, double beta,double troops_value, size_t turns_without_change, considered_states_t& states);
 	void place_starting_troops();
 	void user_add_footman();
 	void user_add_duke();
@@ -153,13 +154,12 @@ private:
 	void collect_commands(int x, int y, std::vector<move_t>& possible_moves);
 
 	double evaluate_state(bool maximize,double troops_value);
-	double evaluate_move(move_t move, int depth, bool maximize, double alpha, double beta,double troops_value,size_t turns_without_change);
+	double evaluate_move(move_t move, int depth, bool maximize, double alpha, double beta,double troops_value,size_t turns_without_change, considered_states_t& states);
 
-	std::string create_hash();
 	void append_active_to_hash(bool first, std::string& hash);
 	void append_passive_to_hash(bool first, std::string& hash);
 
-	void play_specific_move(move_t move, size_t& turns_without_change);
+	void play_specific_move(move_t move, size_t& turns_without_change, considered_states_t& states);
 	bool command_troop(coordinates base, coordinates from, coordinates to);
 	types_of_moves get_move(coordinates from, coordinates to,bool strike_anywhere);
 	bool remove_figure(int x, int y);

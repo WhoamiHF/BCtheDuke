@@ -178,7 +178,48 @@ void test_6() {
 	
 }
 
+//Testing correct creating of hash, especially sort function.
+void test_7() {
+	precomputations_t moves = precomputations_t();
+	std::map<troop_name, int> x = std::map<troop_name, int>();
+	load_parameters(x);
+	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, &p1, &p2, true, true);
+	gameLogic.add_new_figure(coordinates(1, 0), Duke, false);
+	gameLogic.add_new_figure(coordinates(2, 0), Ranger, false);
+	gameLogic.add_new_figure(coordinates(1, 1), Bowman, false);
+	gameLogic.first_player_plays = false;
+	gameLogic.add_new_figure(coordinates(3, 1), Longbowman, true);
+	gameLogic.add_new_figure(coordinates(0, 0), Duke, false);
+	gameLogic.add_new_figure(coordinates(3, 0), Pikeman, true);
 
+	std::cout << gameLogic.create_hash() << std::endl;
+}
+
+void test_8() {
+	precomputations_t moves = precomputations_t();
+	std::map<troop_name, int> x = std::map<troop_name, int>();
+	load_parameters(x);
+	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
+	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, &p1, &p2, true, true);
+	gameLogic.add_new_figure(coordinates(1, 2), Duke, false);
+	gameLogic.add_new_figure(coordinates(0, 0), Pikeman, true);
+	gameLogic.add_new_figure(coordinates(1, 1), Pikeman, true);
+	gameLogic.add_new_figure(coordinates(2, 0), Footman, true);
+	gameLogic.first_player_plays = false;
+	gameLogic.add_new_figure(coordinates(1, 0), Duke, false);
+	gameLogic.board[1][0]->starting_position = false;
+	gameLogic.add_new_figure(coordinates(4, 4), Footman, true);
+	gameLogic.board[4][4]->starting_position = false;
+	considered_states_t t = considered_states_t();
+	size_t turns = 10;
+	gameLogic.computer_play(t,turns);
+
+	gameLogic.print_board();
+	gameLogic.print_state();
+}
 
 
 int main()
@@ -190,32 +231,9 @@ int main()
 	//test_4();
 	//test_5();
 	//test_6();
-	/*
-	* precomputations_t moves = precomputations_t();
-	game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, &p1, &p2);
-	gameLogic.play();
-	*/
-	/*std::map<troop_name, int> x = std::map<troop_name, int>();
-	load_parameters(x);
-	parameters_t p1 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
-	parameters_t p2 = parameters_t(x, true, 0.2, 0.1, 4, 4, 2);
-	*/
-	strategy_manager_t mng = strategy_manager_t();
-	mng.evolve();
-
-	//mng.compare_stategies(&p1, &p2);
-
-
-
-
-
-	//gameLogic.create_hash();
-	//gameLogic.mark_winning_state();
-	//gameLogic.mark_losing_state();
-	//gameLogic.load_winning_states();
-	//std::vector<coordinates> tmp = std::vector<coordinates>();
-	
-
-  //gameLogic.board[1][1]->print_boards(); //beware of null - function of gamelogic?
+	//test_7();
+	test_8();
+	//strategy_manager_t mng = strategy_manager_t();
+	//mng.evolve();
 }
 

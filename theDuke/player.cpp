@@ -15,7 +15,7 @@ troop_name player_t::pick_random_backup_figure() {
 	}
 
 	size_t index = rand() % size;
-	std::vector<troop_name>::iterator it = packs.backup.begin();
+	std::multiset<troop_name>::iterator it = packs.backup.begin();
 	std::advance(it, index);
 	troop_name new_unit = *it;
 	return new_unit;
@@ -119,15 +119,12 @@ void player_t::change_coordinates(int fx, int fy, int tx, int ty) {
 	}
 }
 
-struct compare_troops
+/*struct compare_troops
 {
 	inline bool operator()(const troop_t& first, const troop_t& second) {
 		return first.name < second.name || (first.name == second.name && first.x < second.x) || (first.name == second.name && first.x == second.x && first.y < second.y);
 	}
 };
-/*bool player::compare_troops(const troop& first,const troop& second) {
-	return (first.name < second.name || (first.name == second.name && first.x < second.x) || (first.name == second.name && first.x == second.x && first.y < second.y));
-}*/
 
 bool compare_troops(const troop_t& first, const troop_t& second) {
 	return (first.name < second.name || (first.name == second.name && first.x < second.x) || (first.name == second.name && first.x == second.x && first.y < second.y));
@@ -136,6 +133,7 @@ bool compare_troops(const troop_t& first, const troop_t& second) {
 void player_t::sort_active_pack() {
 	std::sort(packs.active.begin(), packs.active.end(),&compare_troops);
 }
+*/
 
 /* checks if the troop is available
 * it is called by game::add_new_figure which checks for emptiness of square
@@ -147,7 +145,7 @@ bool packs_t::deploy_troop(troop_name figure, int x, int y) {
 		return false;
 	}
 
-	auto iterator = std::find(backup.begin(), backup.end(), figure);
+	auto iterator = backup.find(figure);
 	if (iterator != backup.end()) {
 		active.push_back(troop_t(x, y, *iterator));
 		backup.erase(iterator);
