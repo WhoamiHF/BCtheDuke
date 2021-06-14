@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string> 
 
+/* lets two chromozomes play against each other and return if first chromozome was better*/
 bool strategy_manager_t::compare_chromozomes(parameters_t* stategy_a, parameters_t* stategy_b) {
 	int wins_strategy_a = 0;
 	int draws = 0;
@@ -49,6 +50,7 @@ bool strategy_manager_t::compare_chromozomes(parameters_t* stategy_a, parameters
 	return wins_strategy_a > wins_strategy_b;
 }
 
+/* returns parameters which have best fitness*/
 parameters_t strategy_manager_t::get_parameters() {
 	if (fitness_pool.size() == 0) {
 		throw "No parameter!";
@@ -64,7 +66,8 @@ parameters_t strategy_manager_t::get_parameters() {
 	return parameters_pool[index];
 }
 
-/**/
+/* main function for evolving. Chooses one or two parents, if two then it makes crossover. Either way it performs mutation (with some probability). Then it chooses which chrmozomes will
+	continue and which will be erased. It saves another generation*/
 void strategy_manager_t::evolve() {
 	srand(time(NULL));
 	int x = rand() % 3;
@@ -99,7 +102,9 @@ void strategy_manager_t::evolve() {
 		}
 	}
 	generation++;
+	save_chromozomes();
 }
+/* simple function for printing chromozome*/
 void strategy_manager_t::print_chromozome(chromozome_t x) {
 	for (size_t i = 0; i < SIZE_OF_CHROMOZOME; i++) {
 		std::cout << x[i];
@@ -107,6 +112,7 @@ void strategy_manager_t::print_chromozome(chromozome_t x) {
 	std::cout << std::endl;
 }
 
+/* Makes crossover from two parents. Simply generates random index and takes first part from one parent and rest from another */
 chromozome_t strategy_manager_t::crossover(parents_t parents_indexes) {
 	chromozome_t child = chromozome_t(SIZE_OF_CHROMOZOME, true);
 	srand(time(NULL));
@@ -121,6 +127,7 @@ chromozome_t strategy_manager_t::crossover(parents_t parents_indexes) {
 	return child;
 }
 
+/* Gets chromozome and probability - expected number of changes in whole chromozome */
 chromozome_t strategy_manager_t::mutate(chromozome_t child, double probability) {
 	srand(time(NULL));
 	for (size_t index = 0; index < SIZE_OF_CHROMOZOME; index++) {
@@ -134,6 +141,9 @@ chromozome_t strategy_manager_t::mutate(chromozome_t child, double probability) 
 	return child;
 }
 
+/* performs roulette wheel selection of a parent
+	returns parent's index
+*/
 size_t strategy_manager_t::choose_parent() {
 	size_t sum = 0;
 	for (size_t i = 0; i < chromozome_pool.size(); i++) {
@@ -149,6 +159,7 @@ size_t strategy_manager_t::choose_parent() {
 	return index;
 }
 
+/* selects both parents. Basically just uses "choose_parent" but check that parents have different indexes*/
 parents_t strategy_manager_t::select_parents() {
 	srand(time(NULL));
 	size_t parent_a = choose_parent();
@@ -159,6 +170,7 @@ parents_t strategy_manager_t::select_parents() {
 	return parents_t(parent_a, parent_b);
 }
 
+/* Loads all chromozomes from last generation.*/
 void strategy_manager_t::load_chromozomes() {
 	std::string file_name = "chromozomes/generation_" + std::to_string(generation) + ".txt";
 	std::ifstream file(file_name);
@@ -182,12 +194,14 @@ void strategy_manager_t::load_chromozomes() {
 	}
 }
 
+/* adds chromozome to current chromozome pool. Also it adds it fitness and parameters. */
 void strategy_manager_t::add_chromozome(chromozome_t chromozome, size_t fitness) {
 	chromozome_pool.push_back(chromozome);
 	fitness_pool.push_back(fitness);
 	parameters_pool.push_back(convert_to_parameters(chromozome));
 }
 
+/* saves all current chromozome into file*/
 void strategy_manager_t::save_chromozomes() {
 	std::string file_name = "chromozomes/generation_" + std::to_string(generation) + ".txt";
 	std::ofstream file(file_name);
@@ -199,6 +213,7 @@ void strategy_manager_t::save_chromozomes() {
 	}
 }
 
+/* performs convertion from chromozome to parameters. */
 parameters_t strategy_manager_t::convert_to_parameters(chromozome_t chromozome) {
 	std::vector<troop_name> troops = std::vector<troop_name>{ Assassin, Bowman, Dragoon, Footman, General, Champion,
 		Knight, Longbowman, Marshall, Pikeman, Priest, Ranger, Seer, Wizard };

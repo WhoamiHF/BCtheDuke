@@ -75,7 +75,7 @@ public:
 
 class player_t {
 public:
-	//friend game;
+	//friend game_t;
 	player_t() = default;
 	player_t(bool _first_player, bool played_by_pc_,parameters_t* _parameters) {
 		first_player = _first_player;

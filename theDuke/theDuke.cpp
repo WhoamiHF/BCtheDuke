@@ -202,7 +202,7 @@ int main()
 	*/
 	strategy_manager_t mng = strategy_manager_t();
 	mng.evolve();
-	mng.save_chromozomes();
+
 	//mng.compare_stategies(&p1, &p2);
 
 
