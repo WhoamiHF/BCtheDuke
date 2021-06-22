@@ -10,7 +10,7 @@
 #include <string>
 namespace fs = std::filesystem;
 
-#define NUMBER_OF_ROUNDS 10
+#define NUMBER_OF_ROUNDS 5
 #define PROBABILITY_MUTATION 0.5
 #define STARTING_FITNESS 20
 
@@ -40,12 +40,12 @@ public:
 		}
 		load_chromozomes();
 	}
-	bool compare_chromozomes(parameters_t* stategy_a, parameters_t* stategy_b);
+	bool compare_chromozomes(parameters_t* stategy_a, parameters_t* stategy_b, chromozome_t chromozome_a, chromozome_t chromozome_b);
 	void evolve();
 	parameters_t get_parameters();
 	void print_chromozome(chromozome_t x);
 	chromozome_t crossover(parents_t parents_indexes);
-	chromozome_t mutate(chromozome_t child,double probability);
+	chromozome_t mutate(chromozome_t parent,double probability,bool necessary_mutation);
 	parameters_t convert_to_parameters(chromozome_t chromozome);
 	void save_chromozomes();
 	void load_chromozomes();

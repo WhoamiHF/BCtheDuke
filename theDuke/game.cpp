@@ -679,6 +679,9 @@ evaluation_and_move_t game_t::minimax(int depth, bool maximize, double alpha, do
 				break;
 			}
 		}
+		if (it != states.end() && depth >= it->second.depth) {
+			states.erase(it);
+		}
 		states.emplace(std::pair<std::string, evaluation_depth_and_move_t>(hash, evaluation_depth_and_move_t(maximal_evaluation, best_move, depth)));
 		return evaluation_and_move_t(maximal_evaluation, best_move);
 	}
@@ -696,6 +699,9 @@ evaluation_and_move_t game_t::minimax(int depth, bool maximize, double alpha, do
 			if (beta <= alpha) {
 				break;
 			}
+		}
+		if (it != states.end() && depth >= it->second.depth) {
+			states.erase(it);
 		}
 		states.emplace(std::pair<std::string,evaluation_depth_and_move_t>(hash,evaluation_depth_and_move_t(minimal_evaluation, best_move, depth)));
 		return evaluation_and_move_t(minimal_evaluation, best_move);
@@ -942,7 +948,7 @@ void game_t::play_specific_move(move_t move, size_t& turns_without_change, consi
 			turns_without_change = 0;
 		}
 		move_troop(from, to);
-		log.log(move);
+		log->log(move);
 		break;
 	}
 	case add_it:
@@ -964,7 +970,7 @@ void game_t::play_specific_move(move_t move, size_t& turns_without_change, consi
 			std::cout << "wut";
 		}
 		add_new_figure(best_coordinates, name, false);
-		log.log_addition(best_coordinates, name);
+		log->log_addition(best_coordinates, name);
 		break;
 	}
 	case command_it:
@@ -973,7 +979,7 @@ void game_t::play_specific_move(move_t move, size_t& turns_without_change, consi
 		coordinates from = move.coords[1];
 		coordinates to = move.coords[2];
 		command_troop(base, from, to);
-		log.log(move);
+		log->log(move);
 		break;
 	}
 	}
@@ -983,6 +989,22 @@ void game_t::play_specific_move(move_t move, size_t& turns_without_change, consi
 *
 */
 void game_t::computer_play(considered_states_t& states, size_t& turns_without_change) {
+		std::vector<move_t> possible_moves = std::vector<move_t>();
+		collect_all_possible_moves(possible_moves);
+		number_of_situations++;
+		number_of_possibilites += possible_moves.size();
+		for (auto&& move : possible_moves) {
+			if (move.op == add_it) {
+				number_of_possibilites--;
+				if (first_player_plays) {
+					number_of_possibilites += first_player.packs.backup.size() * move.coords.size();
+				}
+				else {
+					number_of_possibilites += second_player.packs.backup.size() * move.coords.size();
+				}
+				break;
+			}
+		}
 		double troops_value = evaluate_troops(first_player_plays);
 		auto best_branch = minimax(DEPTH, true, -INFINITY, INFINITY, troops_value, turns_without_change, states);
 		if (game_state == running) {
@@ -1014,7 +1036,9 @@ void game_t::play() {
 	auto start = std::chrono::high_resolution_clock::now();
 	size_t turns = 1;
 	size_t turns_without_change = 0;
-	considered_states_t considered_states = considered_states_t();
+	considered_states_t considered_states_first = considered_states_t();
+	considered_states_t considered_states_second = considered_states_t();
+
 
 	place_starting_troops();
 	first_player_plays = true;
@@ -1029,8 +1053,12 @@ void game_t::play() {
 		else {
 			std::cout << turns / 2 << ". Second player's turn" << std::endl;
 		}
-		if ((first_player.played_by_pc && first_player_plays) || (second_player.played_by_pc && !first_player_plays)) {
-			computer_play(considered_states, turns_without_change);
+
+		if (first_player.played_by_pc && first_player_plays) {
+			computer_play(considered_states_first, turns_without_change);
+		}
+		else if (second_player.played_by_pc && !first_player_plays) {
+			computer_play(considered_states_second, turns_without_change);
 		}
 		else {
 			while (!user_play()) {}
@@ -1038,13 +1066,29 @@ void game_t::play() {
 		print_state();
 		turns_without_change++;
 		first_player_plays = !first_player_plays;
+		if (turns > 250) { game_state = draw; }
 	}
 	print_board();
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 	std::cout << duration.count() << std::endl;
-	std::cout << considered_states.size() << std::endl;
+	std::cout << considered_states_first.size() + considered_states_second.size() << std::endl;
 	std::cout << turns << std::endl;
+	switch (game_state)
+	{
+	case first_player_won:
+		log->log_message("First player won!");
+		break;
+	case second_player_won:
+		log->log_message("Second player won!");
+		break;
+	default:
+		log->log_message("Match ended in a draw!");
+		break;	
+	}
+	log->update_branch_factor(number_of_situations, number_of_possibilites);
+	std::cout << "situations = " << number_of_situations << std::endl;
+	std::cout << "branches =" << number_of_possibilites << std::endl;
 }
 
 /* called from function play(). Deals with initial placing of troops (Duke and two footman for each player)
@@ -1095,11 +1139,11 @@ void game_t::computer_add_duke() {
 	int random_index = rand() % possibilites_first_player.size();;
 	if (first_player_plays) {
 		add_new_figure(possibilites_first_player[random_index], Duke, false);
-		log.log_addition(possibilites_first_player[random_index], Duke);
+		log->log_addition(possibilites_first_player[random_index], Duke);
 	}
 	else {
 		add_new_figure(possibilites_second_player[random_index], Duke, false);
-		log.log_addition(possibilites_second_player[random_index], Duke);
+		log->log_addition(possibilites_second_player[random_index], Duke);
 	}
 }
 
@@ -1127,7 +1171,7 @@ void game_t::computer_add_footman() {
 		}
 	}
 	add_new_figure(possibilities[random_index], Footman, false);
-	log.log_addition(possibilities[random_index], Footman);
+	log->log_addition(possibilities[random_index], Footman);
 }
 
 /* checks that x and y represents square on which duke can be placed at the start
@@ -1150,7 +1194,7 @@ void game_t::user_add_footman() {
 		std::cin >> x >> y;
 		succes = add_new_figure(coordinates(x, y), Footman, false);
 	}
-	log.log_addition(coordinates(x, y), Footman);
+	log->log_addition(coordinates(x, y), Footman);
 }
 
 /** gets coordinates for placing duke from user and places it
@@ -1170,7 +1214,7 @@ void game_t::user_add_duke() {
 		succes = check_duke_placement(x, y, first_player_plays);
 	}
 	add_new_figure(coordinates(x, y), Duke, false);
-	log.log_addition(coordinates(x, y), Duke);
+	log->log_addition(coordinates(x, y), Duke);
 }
 
 /* This function gets coordinates of square on board and adds to possible moves each pair of squares from and to, representing squares from which and to which can be troop commanded
@@ -1358,7 +1402,8 @@ std::string game_t::create_hash() {
 * @param[out] sheet_even - sheet for even moves of troops
 */
 void precomputations_t::prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even) {
-	game_t tmp = game_t(&sheet_odd, &sheet_even, NULL, NULL, true, true);
+	logger log = logger();
+	game_t tmp = game_t(&sheet_odd, &sheet_even, NULL, NULL, true, true,&log);
 	size_t total = 0;
 
 	std::vector<troop_name> troops = std::vector<troop_name>{ Duke, Footman,Pikeman,Marshall,General,Longbowman,Priest,Ranger,Knight,Assassin,Dragoon,Champion,Wizard,Seer,Bowman };

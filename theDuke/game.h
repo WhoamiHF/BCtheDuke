@@ -51,7 +51,7 @@ typedef std::map<troop_name, single_troop_sheet_t> all_troops_sheet_t;
 class game_t {
 public:
 	friend precomputations_t;
-	game_t(all_troops_sheet_t* _sheet_odd,all_troops_sheet_t* _sheet_even,parameters_t* first_parameters, parameters_t* second_parameters,bool first_player_pc,bool second_player_pc) {
+	game_t(all_troops_sheet_t* _sheet_odd,all_troops_sheet_t* _sheet_even,parameters_t* first_parameters, parameters_t* second_parameters,bool first_player_pc,bool second_player_pc,logger* _log) {
 		first_player_plays = true;
 		for (size_t i = 0; i < 6; i++)
 		{
@@ -66,10 +66,13 @@ public:
 		game_state = running;
 		sheet_even = _sheet_even;
 		sheet_odd = _sheet_odd;
-		log = logger();
+		log = _log;
+		number_of_possibilites = 0;
+		number_of_situations = 0;
+
 	}
 
-	game_t(const game_t& t) {
+	/*game_t(const game_t& t) {
 		for (size_t i = 0; i < 6; i++)
 		{
 			for (size_t j = 0; j < 6; j++)
@@ -89,9 +92,9 @@ public:
 		this->sheet_even = t.sheet_even;
 		this->sheet_odd = t.sheet_odd;
 		//this->log = t.log; @todo necessary constructor?
-	}
+	}*/
 
-	game_t& operator=(const game_t& t) {
+	/*game_t& operator=(const game_t& t) {
 		for (size_t i = 0; i < 6; i++)
 		{
 			for (size_t j = 0; j < 6; j++)
@@ -112,7 +115,7 @@ public:
 		this->sheet_odd = t.sheet_odd;
 		this->log = logger();
 		return *this;
-	}
+	}*/
 
 	bool add_new_figure(coordinates to, troop_name name_of_troop,bool anywhere);
 
@@ -130,7 +133,8 @@ public:
 	std::unique_ptr<figure> board[6][6];
 	state_of_game game_state;
 	std::string create_hash();
-
+	long long number_of_possibilites;
+	long long number_of_situations;
 	void computer_play(considered_states_t& states, size_t& turns_without_change);
 private:
 	void undo_add(coordinates to, troop_name name);
@@ -181,7 +185,7 @@ private:
 	player_t second_player;
 	all_troops_sheet_t* sheet_odd;
 	all_troops_sheet_t* sheet_even;
-	logger log;
+	logger* log;
 	//std::string previous_hash;
 	//bool can_the_duke_be_taken();
 	/*void mark_winning_state();

@@ -1,4 +1,6 @@
 #include "Logger.h"
+#include <fstream>
+#include <iostream>
 
 void logger::create_file() {
 	std::time_t t = std::time(0);
@@ -6,6 +8,28 @@ void logger::create_file() {
 	std::string s = std::to_string(xx);
 	file = std::ofstream("Logs/" + s + ".txt");
 	std::cout << xx;
+}
+void logger::log_message(std::string message) {
+	file << std::endl;
+	file << "----------------Message-----------------" << std::endl;
+	file << message << std::endl;
+	file << "----------------End of message-------------------" << std::endl;
+}
+
+void logger::update_branch_factor(long long new_situations, long long new_possibilities) {
+	std::ifstream branch_factor_file("Logs/branch_factor.txt");
+	std::string line;
+	std::getline(branch_factor_file, line);
+	long long situations = stoi(line);
+	std::getline(branch_factor_file, line);
+	long long possibilities = stoi(line);
+	branch_factor_file.close();
+
+	std::ofstream ofs;
+	ofs.open("Logs/branch_factor.txt", std::ofstream::out | std::ofstream::trunc);
+	ofs << situations + new_situations << std::endl;
+	ofs << possibilities + new_possibilities << std::endl;
+	ofs.close();
 }
 
 void logger::log(move_t move) {

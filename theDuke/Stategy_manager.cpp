@@ -2,17 +2,21 @@
 #include <fstream>
 #include <iostream>
 #include <string> 
+#include <set>
 
 /* lets two chromozomes play against each other and return if first chromozome was better*/
-bool strategy_manager_t::compare_chromozomes(parameters_t* stategy_a, parameters_t* stategy_b) {
+bool strategy_manager_t::compare_chromozomes(parameters_t* strategy_a, parameters_t* strategy_b,chromozome_t chromozome_a, chromozome_t chromozome_b) {
+
 	int wins_strategy_a = 0;
 	int draws = 0;
 	int wins_strategy_b = 0;
 
 	precomputations_t moves = precomputations_t();
 
-	for (size_t i = 0; i < NUMBER_OF_ROUNDS / 2; i++) {
-		game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, stategy_a, stategy_b,true,true);
+	for (size_t i = 0; i < NUMBER_OF_ROUNDS / 2; i++) { //@todo: winning
+		std::string filename = "Logs/Generation_"+std::to_string(generation)+"[game_"+std::to_string(i)+"]";
+		logger log = logger(filename,chromozome_a,chromozome_b,*strategy_a,*strategy_b);
+		game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, strategy_a, strategy_b,true,true,&log);
 		gameLogic.play();
 
 		switch (gameLogic.game_state) {
@@ -28,8 +32,10 @@ bool strategy_manager_t::compare_chromozomes(parameters_t* stategy_a, parameters
 		}
 	}
 	// now with switched first and second players - it is important that they are switched in switch also!
-	for (size_t i = 0; i < NUMBER_OF_ROUNDS / 2; i++) {
-		game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, stategy_b, stategy_a,true,true);
+	for (size_t i = 0; i < (NUMBER_OF_ROUNDS+1) / 2; i++) {
+		std::string filename = "Logs/Generation_" + std::to_string(generation) + "[game_" + std::to_string(i+NUMBER_OF_ROUNDS/2) + "]";
+		logger log = logger(filename, chromozome_b, chromozome_a, *strategy_b, *strategy_a);
+		game_t gameLogic = game_t(&moves.sheet_odd, &moves.sheet_even, strategy_b, strategy_a,true,true,&log);
 		gameLogic.play();
 
 		switch (gameLogic.game_state) {
@@ -41,6 +47,9 @@ bool strategy_manager_t::compare_chromozomes(parameters_t* stategy_a, parameters
 			break;
 		case second_player_won:
 			wins_strategy_a++;
+			break;
+		}
+		if (wins_strategy_a > (NUMBER_OF_ROUNDS - draws) / 2 || wins_strategy_b > (NUMBER_OF_ROUNDS - draws) / 2) {
 			break;
 		}
 	}
@@ -73,9 +82,9 @@ void strategy_manager_t::evolve() {
 	int x = rand() % 3;
 	if (x == 0) {
 		auto parents = select_parents();
-		bool first_is_better = compare_chromozomes(&parameters_pool[parents.first], &parameters_pool[parents.second]);
+		bool first_is_better = compare_chromozomes(&parameters_pool[parents.first], &parameters_pool[parents.second],chromozome_pool[parents.first],chromozome_pool[parents.second]);
 		chromozome_t child = crossover(parents);
-		child = mutate(child,PROBABILITY_MUTATION);
+		child = mutate(child,PROBABILITY_MUTATION,false);
 		if (first_is_better) {
 			chromozome_pool[parents.second] = child;
 			fitness_pool[parents.second] = STARTING_FITNESS;
@@ -93,12 +102,15 @@ void strategy_manager_t::evolve() {
 	}
 	else {
 		size_t parent = choose_parent();
-		chromozome_t child = mutate(chromozome_pool[parent],PROBABILITY_MUTATION*2);
+		chromozome_t child = mutate(chromozome_pool[parent],PROBABILITY_MUTATION*4,true); 
 		parameters_t child_parameters = convert_to_parameters(child);
-		if (compare_chromozomes(&child_parameters, &parameters_pool[parent])) {
+		if (compare_chromozomes(&child_parameters, &parameters_pool[parent],child,chromozome_pool[parent])) {
 			chromozome_pool[parent] = child;
 			fitness_pool[parent] = STARTING_FITNESS;
 			parameters_pool[parent] = child_parameters;
+		}
+		else {
+			fitness_pool[parent]++;
 		}
 	}
 	generation++;
@@ -128,13 +140,27 @@ chromozome_t strategy_manager_t::crossover(parents_t parents_indexes) {
 }
 
 /* Gets chromozome and probability - expected number of changes in whole chromozome */
-chromozome_t strategy_manager_t::mutate(chromozome_t child, double probability) {
+chromozome_t strategy_manager_t::mutate(chromozome_t parent, double probability,bool necessary_mutation) {
+	if (probability == 0) {
+		return parent;
+	}
+	chromozome_t child = chromozome_t(SIZE_OF_CHROMOZOME);
 	srand(time(NULL));
-	for (size_t index = 0; index < SIZE_OF_CHROMOZOME; index++) {
-		int entries = SIZE_OF_CHROMOZOME / probability;
-		if ((rand() % entries) == 0) {
-			std::cout << "mutation!";
-			child[index] = !child[index];
+	int entries = SIZE_OF_CHROMOZOME / probability;
+
+	bool mutated = false;
+	while (!mutated) {
+		if (!necessary_mutation) {
+			mutated = true;
+		}
+
+		for (size_t index = 0; index < SIZE_OF_CHROMOZOME; index++) {
+			child[index] = parent[index];
+			if ((rand() % entries) == 0) {
+				std::cout << "mutation!";
+				mutated = true;
+				child[index] = !child[index];
+			}
 		}
 	}
 	print_chromozome(child);
@@ -162,10 +188,13 @@ size_t strategy_manager_t::choose_parent() {
 /* selects both parents. Basically just uses "choose_parent" but check that parents have different indexes*/
 parents_t strategy_manager_t::select_parents() {
 	srand(time(NULL));
+	std::set<size_t> considered_indexes = std::set<size_t>();
 	size_t parent_a = choose_parent();
+	considered_indexes.emplace(parent_a);
 	size_t parent_b = parent_a;
-	while (parent_a == parent_b && chromozome_pool.size() != 1) {
+	while (chromozome_pool[parent_a] == chromozome_pool[parent_b] && (chromozome_pool.size() - considered_indexes.size() != 0)) {
 		parent_b = choose_parent();
+		considered_indexes.emplace(parent_b);
 	}
 	return parents_t(parent_a, parent_b);
 }
