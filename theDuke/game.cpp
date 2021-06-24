@@ -643,10 +643,10 @@ evaluation_and_move_t game_t::minimax(int depth, bool maximize, double alpha, do
 	//if game is not running then the duke had to be taken previous turn, if current turn is ours then previous was not and we have lost, otherwise we have won 
 	if (game_state != running) {
 		if (maximize) {
-			return evaluation_and_move_t(-EXTREME_EVALUATION * DEPTH, move_t(std::vector<coordinates>(), add_it));
+			return evaluation_and_move_t(-EXTREME_EVALUATION * (depth+1), move_t(std::vector<coordinates>(), add_it));
 		}
 		else {
-			return evaluation_and_move_t(EXTREME_EVALUATION * DEPTH, move_t(std::vector<coordinates>(), add_it));
+			return evaluation_and_move_t(EXTREME_EVALUATION * (depth+1), move_t(std::vector<coordinates>(), add_it));
 		}
 	}
 
@@ -675,7 +675,7 @@ evaluation_and_move_t game_t::minimax(int depth, bool maximize, double alpha, do
 			if (evaluation > alpha) {
 				alpha = evaluation;
 			}
-			if (beta <= alpha) {
+			if (beta <= alpha || maximal_evaluation >=EXTREME_EVALUATION) {
 				break;
 			}
 		}
@@ -696,7 +696,7 @@ evaluation_and_move_t game_t::minimax(int depth, bool maximize, double alpha, do
 			if (evaluation < beta) {
 				beta = evaluation;
 			}
-			if (beta <= alpha) {
+			if (beta <= alpha || minimal_evaluation <= -EXTREME_EVALUATION) {
 				break;
 			}
 		}

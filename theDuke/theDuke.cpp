@@ -242,6 +242,8 @@ int main()
 	//test_7();
 	//test_8();
 	strategy_manager_t mng = strategy_manager_t();
-	mng.evolve();
+	while (true) {
+		mng.evolve();
+	}
 }
 
