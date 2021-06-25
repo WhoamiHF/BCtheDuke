@@ -1298,7 +1298,6 @@ size_t game_t::collect_all_possible_moves(std::vector<move_t>& possible_moves) {
 
 		collect_commands(real_from.x, real_from.y, possible_moves);
 
-		//@todo: computes both
 		all_troops_sheet_t::iterator precomputed_moves;
 		if (board[real_from.x][real_from.y]->starting_position) {
 			precomputed_moves = sheet_odd->find(real_from.name);

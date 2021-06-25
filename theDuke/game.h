@@ -51,7 +51,9 @@ typedef std::map<troop_name, single_troop_sheet_t> all_troops_sheet_t;
 class game_t {
 public:
 	friend precomputations_t;
-	game_t(all_troops_sheet_t* _sheet_odd,all_troops_sheet_t* _sheet_even,parameters_t* first_parameters, parameters_t* second_parameters,bool first_player_pc,bool second_player_pc,logger* _log) {
+	game_t() = default;
+	game_t(all_troops_sheet_t* _sheet_odd,all_troops_sheet_t* _sheet_even,parameters_t* first_parameters,
+		parameters_t* second_parameters, bool first_player_pc,bool second_player_pc,logger* _log) {
 		first_player_plays = true;
 		for (size_t i = 0; i < 6; i++)
 		{
@@ -72,7 +74,7 @@ public:
 
 	}
 
-	/*game_t(const game_t& t) {
+	game_t(const game_t& t) {
 		for (size_t i = 0; i < 6; i++)
 		{
 			for (size_t j = 0; j < 6; j++)
@@ -91,10 +93,10 @@ public:
 		this->first_player_plays = t.first_player_plays;
 		this->sheet_even = t.sheet_even;
 		this->sheet_odd = t.sheet_odd;
-		//this->log = t.log; @todo necessary constructor?
-	}*/
+		this->log = t.log;
+	}
 
-	/*game_t& operator=(const game_t& t) {
+	game_t& operator=(const game_t& t) {
 		for (size_t i = 0; i < 6; i++)
 		{
 			for (size_t j = 0; j < 6; j++)
@@ -113,9 +115,9 @@ public:
 		this->first_player_plays = t.first_player_plays;
 		this->sheet_even = t.sheet_even;
 		this->sheet_odd = t.sheet_odd;
-		this->log = logger();
+		this->log = t.log;
 		return *this;
-	}*/
+	}
 
 	bool add_new_figure(coordinates to, troop_name name_of_troop,bool anywhere);
 
@@ -186,19 +188,6 @@ private:
 	all_troops_sheet_t* sheet_odd;
 	all_troops_sheet_t* sheet_even;
 	logger* log;
-	//std::string previous_hash;
-	//bool can_the_duke_be_taken();
-	/*void mark_winning_state();
-	void mark_losing_state();
-	void load_winning_states();
-	std::unordered_set<std::string> winning_states;
-	std::vector<std::string> get_hash_after_turn(possible_move move);
-	*/
-	/*game(bool first_player_plays_, player first, player second) {
-	first_player_plays = first_player_plays_;
-	first_player = first;
-	second_player = second;
-	}*/
 };
 
 class precomputations_t {
@@ -207,10 +196,9 @@ public:
 		sheet_even = all_troops_sheet_t();
 		sheet_odd = all_troops_sheet_t();
 		prepare_possible_moves(sheet_odd, sheet_even);
-		/*game_t tmp = game_t(&sheet_odd, &sheet_even,NULL,NULL);
-		tmp.prepare_possible_moves(sheet_odd,sheet_even);*/
 	}
 	all_troops_sheet_t sheet_odd;
 	all_troops_sheet_t sheet_even;
+private:
 	void prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even);
 };

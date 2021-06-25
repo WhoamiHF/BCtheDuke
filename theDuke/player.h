@@ -8,6 +8,7 @@
 
 class parameters_t {
 public:
+	parameters_t() = default;
 	parameters_t(std::map<troop_name,int> _troop_values, bool _max_of_addition, double _coefficient_possible_moves,
 		double _coefficient_duke_moves, int _part_of_addition, int _depth, double _coefficient_active_passive) {
 		troop_values = _troop_values;

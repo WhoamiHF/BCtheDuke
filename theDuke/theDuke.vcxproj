@@ -147,6 +147,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="Stategy_manager.cpp" />
+    <ClCompile Include="Tester.cpp" />
     <ClCompile Include="theDuke.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="Move.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="Stategy_manager.h" />
+    <ClInclude Include="Tester.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

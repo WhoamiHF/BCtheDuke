@@ -15,10 +15,19 @@ public:
 	logger() {
 		even_move = false;
 	}
-
-	logger(std::string filename, std::vector<bool> first_chromozome, std::vector<bool> second_chromozome,parameters_t first_parameters, parameters_t second_parameters) {
+	logger(const logger& t) {
+		this->filename = t.filename;
+		file.open(filename + ".txt");
+	}
+	logger operator=(const logger& t) {
+		this->filename = t.filename;
+		file.open(filename + ".txt");
+		return *this;
+	}
+	logger(std::string _filename, std::vector<bool> first_chromozome, std::vector<bool> second_chromozome,parameters_t first_parameters, parameters_t second_parameters) {
 		//file = std::ofstream(filename + ".txt");
-		file.open(filename+".txt", std::ofstream::out | std::ofstream::trunc);
+		file.open(_filename+".txt", std::ofstream::out | std::ofstream::trunc);
+		this->filename = _filename;
 		file << "------------------------First---------------------" << std::endl;
 		for(auto&& ch : first_chromozome){
 			file << ch;
@@ -55,5 +64,6 @@ public:
 private:
 	std::ofstream file;
 	bool even_move;
+	std::string filename;
 
 };

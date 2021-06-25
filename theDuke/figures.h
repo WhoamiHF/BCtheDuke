@@ -32,12 +32,13 @@ public:
 				starting_moves[i][j] = nothing;
 				other_moves[i][j] = nothing;
 			}
-			command_squares_starting = std::vector<coordinates>();
-			command_squares_other = std::vector<coordinates>();
-			position_on_move_board = coordinates(2, 2);
-			name = Duke;
-			starting_position = true;
+			
 		}
+		command_squares_starting = std::vector<coordinates>();
+		command_squares_other = std::vector<coordinates>();
+		position_on_move_board = coordinates(2, 2);
+		name = Duke;
+		starting_position = true;
 	}
 
 	virtual std::unique_ptr<figure> clone() = 0;
